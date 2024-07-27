@@ -1,24 +1,25 @@
 # initialization
 import os
 from utils import helper
-import pandas as pd
+from pandas import DataFrame, read_csv
 from matplotlib import pyplot as plt
+
 
 def exec_main():
     #### User Input
     # input parameters
-    folder_path = input("Input folder path: ")
-    voltage_file_prefix = input("Input Prefix name for Voltage: ")
-    current_file_prefix = input("Input Prefix name for Current: ")
-    power_file_prefix = input("Input Prefix name for Power: ")
-    f_cutoff = int(input("Input cutoff Freq of LPF: "))
-    f_downsample = int(input("Input Downsampling Freq: "))
-    smoothing_constant = float(input("Input smoothing constant: "))
+    folder_path = helper.get_valid_str("Input folder path: ")
+    voltage_file_prefix = helper.get_valid_str("Input Prefix name for Voltage: ")
+    current_file_prefix = helper.get_valid_str("Input Prefix name for Current: ")
+    power_file_prefix = helper.get_valid_str("Input Prefix name for Power: ")
+    f_cutoff = helper.get_valid_int("Input cutoff Freq of LPF: ")
+    f_downsample =helper.get_valid_int("Input Downsampling Freq: ")
+    smoothing_constant = helper.get_valid_float("Input smoothing constant: ")
 
 
     #### Loading the files
     path = os.chdir(folder_path)
-    files_in_dir= os.listdir(path)
+    files_in_dir = os.listdir(path)
 
 
     # Identifying filename prefixes, sorting
@@ -69,8 +70,8 @@ def exec_main():
     for x in range(0, len(voltage_order)):
         
         # import the csv file
-        voltage = pd.read_csv(voltage_order[x])
-        current = pd.read_csv(current_order[x])
+        voltage = read_csv(voltage_order[x])
+        current = read_csv(current_order[x])
         
         # get the last character of the filename for saving the power data later
         fn = helper.get_last_chr(voltage_order[x])
@@ -94,12 +95,12 @@ def exec_main():
         
         
         #### Downsampling the Data ####
-        D_filt_volt_df, D_filt_cur_df = helper.downsample(f_downsample, fs_v, filtered_voltage, fs_c, filtered_current)
+        D_filt_volt_df, D_filt_cur_df = helper.downsample(f_downsample, fs_v, filtered_voltage, voltage, fs_c, filtered_current, current)
 
 
         #### Calculating Power ####
         # multiply voltage and current
-        power_df = pd.DataFrame(D_filt_volt_df['filt_volt'] * D_filt_cur_df['filt_cur'])
+        power_df = DataFrame(D_filt_volt_df['filt_volt'] * D_filt_cur_df['filt_cur'])
         power_df.insert(0, 'time', D_filt_volt_df.iloc[:, 0])
         power_df.rename(columns={0:'power'}, inplace=True)
 
@@ -128,13 +129,13 @@ def exec_main():
         plt.grid(True)
 
         # save plot
-        plot_filename = f'{power_file_prefix}{fn}.png'
+        plot_filename = helper.get_filename(folder_path, power_file_prefix, fn, 'png') #(path, prefix, fn, extension)
         plt.savefig(plot_filename, dpi=300)
         print(f"Power Plot saved as {plot_filename}")
 
         plt.show()
 
         #save csv
-        csv_filename = f'{power_file_prefix}{ fn}.csv'
+        csv_filename = helper.get_filename(folder_path, power_file_prefix, fn, 'csv') #(path, prefix, fn, extension)
         power_df.to_csv(csv_filename)
         print(f"Power Data saved as {csv_filename}")
