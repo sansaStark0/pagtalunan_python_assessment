@@ -45,6 +45,34 @@ def LP_butter_1st(data, cutoff, fs):
     
     return filt_sig, w, h
 
+# downsampling
+def downsample(f_downsample, fs_v, filt_volt, fs_c, filt_cur):
+    # f_downsample - downsampling freq
+    # fs_v - sampling rate of voltage
+    # filt_volt - list of filtered voltage
+    # fs_c - sampling rate of current
+    # filt_cur - list of filtered current
+
+    fs_vd = int(fs_v)/f_downsample
+    fs_cd = int(fs_c)/f_downsample
+
+    # downsampling the voltage
+    filt_volt_df = pd.DataFrame(filt_volt)
+    filt_volt_df.insert(0, 'time', voltage.iloc[:,0])
+    filt_volt_df.rename(columns={0:'filt_volt'}, inplace=True)
+    d_filt_volt_df = filt_volt_df.iloc[::int(fs_vd)]
+
+    # downsampling the current
+    filt_cur_df = pd.DataFrame(filt_cur)
+    filt_cur_df.insert(0, 'time', current.iloc[:,0])
+    filt_cur_df.rename(columns={0:'filt_cur'}, inplace=True)
+    d_filt_cur_df = filt_cur_df.iloc[::int(fs_cd)]
+
+    return d_filt_volt_df, d_filt_cur_df
+
+
+
+
 
 #### User Input
 # input parameters
@@ -136,27 +164,13 @@ for x in range(0, len(voltage_order)):
     
     
     #### Downsampling the Data ####
-    # downsampling parameter
-    fs_vd = int(fs_v)/f_downsample
-    fs_cd = int(fs_c)/f_downsample
-
-    # downsampling the voltage
-    filt_volt_df = pd.DataFrame(filtered_voltage)
-    filt_volt_df.insert(0, 'time', voltage.iloc[:,0])
-    filt_volt_df.rename(columns={0:'filt_volt'}, inplace=True)
-    d_filt_volt_df = filt_volt_df.iloc[::int(fs_vd)]
-
-    # downsampling the current
-    filt_cur_df = pd.DataFrame(filtered_current)
-    filt_cur_df.insert(0, 'time', current.iloc[:,0])
-    filt_cur_df.rename(columns={0:'filt_cur'}, inplace=True)
-    d_filt_cur_df = filt_cur_df.iloc[::int(fs_cd)]
+    D_filt_volt_df, D_filt_cur_df = downsample(f_downsample, fs_v, filtered_voltage, fs_c, filtered_current)
 
 
     #### Calculating Power ####
     # multiply voltage and current
-    power_df = pd.DataFrame(d_filt_volt_df['filt_volt'] * d_filt_cur_df['filt_cur'])
-    power_df.insert(0, 'time', d_filt_volt_df.iloc[:, 0])
+    power_df = pd.DataFrame(D_filt_volt_df['filt_volt'] * D_filt_cur_df['filt_cur'])
+    power_df.insert(0, 'time', D_filt_volt_df.iloc[:, 0])
     power_df.rename(columns={0:'power'}, inplace=True)
 
     
