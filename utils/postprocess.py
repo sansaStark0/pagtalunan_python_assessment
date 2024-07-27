@@ -6,6 +6,9 @@ from matplotlib import pyplot as plt
 
 
 def exec_main():
+
+    print("Power Calculator")
+
     #### User Input
     # input parameters
     folder_path = helper.get_valid_str("Input folder path: ")
@@ -121,15 +124,15 @@ def exec_main():
         # plot raw power and smoothed power
         plt.clf()
         plt.plot(power_df.iloc[:,0], power_df.iloc[:, 1], label="Raw Power")
-        plt.plot(power_df.iloc[:,0], power_df.iloc[:, 2], label="Smoothened Power")
+        plt.plot(power_df.iloc[:,0], power_df.iloc[:, 2], label="Smoothed Power")
         plt.legend(loc='best')
-        plt.xlabel('time (s)')
-        plt.ylabel('power (W)')
-        plt.title (f'Calculated Power ({power_file_prefix}{fn})')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Power (W)')
         plt.grid(True)
 
         # save plot
         plot_filename = helper.get_filename(folder_path, power_file_prefix, fn, 'png') #(path, prefix, fn, extension)
+        plt.title (f'Calculated Power ({plot_filename})')
         plt.savefig(plot_filename, dpi=300)
         print(f"Power Plot saved as {plot_filename}")
 
