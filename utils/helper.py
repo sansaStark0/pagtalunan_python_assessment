@@ -117,7 +117,7 @@ def get_valid_float(prompt):
 def get_filename(path, prefix, fn, extension):
     while True:
         filename = f'{prefix}{fn}.{extension}'
-        if exists(path):
+        if exists(filename):
             overwrite = input(f"{filename} file already exists. Do you want to overwrite it? (y/n) ")
             if overwrite in ['y','yes','YES', 'Yes', 'Y']:
                 return filename
