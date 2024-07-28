@@ -131,6 +131,7 @@ def exec_main():
         plt.grid(True)
 
         # save plot
+        print("Saving plot...")
         plot_filename = helper.get_filename(folder_path, power_file_prefix, fn, 'png') #(path, prefix, fn, extension)
         plt.title (f'Calculated Power ({plot_filename})')
         plt.savefig(plot_filename, dpi=300)
@@ -139,6 +140,7 @@ def exec_main():
         plt.show()
 
         #save csv
+        print("Saving csv file...")
         csv_filename = helper.get_filename(folder_path, power_file_prefix, fn, 'csv') #(path, prefix, fn, extension)
         power_df.to_csv(csv_filename)
         print(f"Power Data saved as {csv_filename}")
